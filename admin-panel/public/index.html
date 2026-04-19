@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Viajes - Administrador</title>
+    <link rel="stylesheet" href="src/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        #appContent { display: none; }
+        #appContent.visible { display: flex; }
+        #loginModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        #loginModal.visible { display: flex; }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 400px;
+            max-width: 90%;
+        }
+        .btn-warning { background: #ffc107; color: #333; }
+        .btn-warning:hover { background: #e0a800; }
+        .role-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+        .role-encargado { background: #28a745; color: white; }
+    </style>
+</head>
+<body>
+    <div id="appContent" class="container">
+        <div class="sidebar">
+            <div class="logo">
+                <h2>👑 Viajes</h2>
+                <p>Panel Administrador</p>
+            </div>
+            <nav>
+                <button class="nav-btn active" data-tab="encargados">👥 Encargados</button>
+                <button class="nav-btn" data-tab="limpieza">🧹 Limpieza</button>
+            </nav>
+            <div class="user-info">
+                <div id="userName">Cargando...</div>
+                <div id="userRole" style="font-size: 12px; opacity: 0.8;"></div>
+                <button id="logoutBtn" class="logout-btn">🚪 Cerrar Sesión</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <h1 id="pageTitle">Gestión de Encargados</h1>
+                <div id="loginStatus" class="login-status disconnected">❌ Desconectado</div>
+            </div>
+
+            <!-- Gestión de Encargados -->
+            <div id="encargados" class="tab-content active">
+                <div style="margin-bottom: 20px;">
+                    <button class="btn btn-primary" onclick="openEncargadoModal()" style="width: auto;">+ Nuevo Encargado</button>
+                </div>
+                <div class="search-bar"><input type="text" id="searchEncargados" placeholder="🔍 Buscar encargado..."></div>
+                <div style="overflow-x: auto;">
+                    <table class="vehicles-table">
+                        <thead>
+                            <tr><th>ID</th><th>Nombre</th><th>Email</th><th>Teléfono</th><th>Zona</th><th>Vehículos</th><th>Acciones</th></tr>
+                        </thead>
+                        <tbody id="encargadosList"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Limpieza -->
+            <div id="limpieza" class="tab-content">
+                <div class="form-card">
+                    <h2>Limpieza de Datos</h2>
+                    <div class="form-group">
+                        <label>Días para guardar movimientos</label>
+                        <input type="number" id="diasMovimientos" value="90">
+                    </div>
+                    <div class="form-group">
+                        <label>Días para guardar viajes</label>
+                        <input type="number" id="diasViajes" value="180">
+                    </div>
+                    <button class="btn btn-primary" onclick="guardarConfiguracion()">Guardar Configuración</button>
+                    <hr style="margin: 20px 0;">
+                    <button class="btn btn-warning" onclick="limpiarMovimientosViejos()" style="width: 100%; margin-bottom: 10px;">🧹 Limpiar Movimientos Antiguos</button>
+                    <button class="btn btn-delete" onclick="limpiarViajesViejos()" style="width: 100%;">🗑 Limpiar Viajes Antiguos</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Login -->
+    <div id="loginModal">
+        <div class="modal-content">
+            <h2>Iniciar Sesión</h2>
+            <form id="loginForm">
+                <div class="form-group"><label>Email</label><input type="email" id="loginEmail" value="admin@viajes.com"></div>
+                <div class="form-group"><label>Contraseña</label><input type="password" id="loginPassword" value="Admin123456"></div>
+                <button type="submit" class="btn btn-primary">Ingresar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Encargado -->
+    <div id="encargadoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><h2 id="modalTitle">Nuevo Encargado</h2><span class="close" onclick="closeEncargadoModal()">&times;</span></div>
+            <form id="encargadoForm">
+                <input type="hidden" id="editEncargadoId">
+                <div class="form-group"><label>Nombre Completo</label><input type="text" id="encargadoNombre" required></div>
+                <div class="form-group"><label>Email</label><input type="email" id="encargadoEmail" required></div>
+                <div class="form-group"><label>Teléfono</label><input type="text" id="encargadoPhone" required></div>
+                <div class="form-group"><label>Contraseña</label><input type="password" id="encargadoPassword" placeholder="Nueva contraseña"></div>
+                <div class="form-group"><label>Zona Asignada</label><input type="text" id="encargadoZona" placeholder="Ej: Zona Norte, Zona Sur"></div>
+                <button type="submit" class="btn btn-primary">Guardar</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="src/js/admin.js"></script>
+</body>
+</html>

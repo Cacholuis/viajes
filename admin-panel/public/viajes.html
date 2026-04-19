@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Viajes</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f0f2f5; padding: 20px; }
+        
+        .container { max-width: 600px; margin: 0 auto; }
+        
+        .header { background: #1a472a; color: white; padding: 20px; text-align: center; border-radius: 12px 12px 0 0; }
+        .logo { font-size: 28px; font-weight: bold; }
+        
+        .card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; }
+        
+        .btn { background: #ff6b35; color: white; border: none; padding: 14px; border-radius: 8px; font-size: 16px; cursor: pointer; width: 100%; font-weight: bold; }
+        
+        .vehiculo { background: white; border-radius: 12px; padding: 15px; margin-bottom: 10px; box-shadow: 0 1px 5px rgba(0,0,0,0.1); border-left: 5px solid #ffc107; }
+        .vehiculo.normal { border-left-color: #ffc107; }
+        .vehiculo.elegido { border-left-color: #28a745; background: #e8f5e9; }
+        .vehiculo.rechazado { border-left-color: #dc3545; background: #ffebee; }
+        
+        .vehiculo-nombre { font-weight: bold; font-size: 18px; }
+        .vehiculo-detalle { color: #666; font-size: 14px; margin: 5px 0; }
+        .vehiculo-precio { font-size: 20px; font-weight: bold; color: #ff6b35; margin: 10px 0; }
+        .vehiculo-input { width: 100px; padding: 8px; border: 1px solid #ddd; border-radius: 6px; margin-right: 10px; }
+        .vehiculo-btn { background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; }
+        .vehiculo-elegir { background: #ff6b35; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; width: 100%; margin-top: 10px; }
+        
+        .oculto { display: none; }
+        
+        .role-selector { display: flex; gap: 10px; margin-bottom: 20px; }
+        .role-btn { flex: 1; padding: 10px; background: white; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; text-align: center; }
+        .role-btn.activo { background: #1a472a; color: white; border-color: #1a472a; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🚐 Viajes</div>
+        </div>
+        
+        <!-- Selector de rol -->
+        <div class="role-selector">
+            <div class="role-btn activo" data-rol="usuario">👤 Usuario</div>
+            <div class="role-btn" data-rol="conductor">👨‍✈️ Conductor</div>
+        </div>
+        
+        <div class="card">
+            <div class="form-group">
+                <label>📍 Origen</label>
+                <input type="text" id="origen" placeholder="Ej: Calle Principal 123">
+            </div>
+            <div class="form-group">
+                <label>🎯 Destino</label>
+                <input type="text" id="destino" placeholder="Ej: Campo Los Álamos">
+            </div>
+            <button id="actualizarBtn" class="btn">Actualizar</button>
+        </div>
+        
+        <div id="vehiculosContainer"></div>
+    </div>
+
+<script>
+    // Datos de ejemplo
+    let vehiculos = [
+        { id: 1, nombre: "Juan Perez", vehiculo: "Toyota Hilux", patente: "ABC123", capacidad: 5, precio: null, estado: "normal" },
+        { id: 2, nombre: "Carlos Lopez", vehiculo: "Ford Ranger", patente: "DEF456", capacidad: 5, precio: null, estado: "normal" },
+        { id: 3, nombre: "Maria Gomez", vehiculo: "Chevrolet S10", patente: "GHI789", capacidad: 5, precio: null, estado: "normal" }
+    ];
+    
+    // Cargar precios guardados en localStorage
+    function cargarPreciosGuardados() {
+        const preciosGuardados = localStorage.getItem('preciosVehiculos');
+        if (preciosGuardados) {
+            const precios = JSON.parse(preciosGuardados);
+            vehiculos.forEach(v => {
+                if (precios[v.id]) {
+                    v.precio = precios[v.id];
+                }
+            });
+        }
+    }
+    
+    // Guardar precios en localStorage
+    function guardarPrecios() {
+        const precios = {};
+        vehiculos.forEach(v => {
+            if (v.precio) {
+                precios[v.id] = v.precio;
+            }
+        });
+        localStorage.setItem('preciosVehiculos', JSON.stringify(precios));
+    }
+    
+    let rolActual = "usuario";
+    let origenActual = "";
+    let destinoActual = "";
+    let conductorLogueado = "Carlos Lopez"; // Cambiar para probar otros conductores
+    
+    const vehiculosContainer = document.getElementById('vehiculosContainer');
+    const origenInput = document.getElementById('origen');
+    const destinoInput = document.getElementById('destino');
+    const actualizarBtn = document.getElementById('actualizarBtn');
+    
+    // Cargar precios guardados al iniciar
+    cargarPreciosGuardados();
+    
+    // Cambiar rol
+    document.querySelectorAll('.role-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('activo'));
+            btn.classList.add('activo');
+            rolActual = btn.dataset.rol;
+            renderVehiculos();
+        });
+    });
+    
+    // Actualizar origen/destino
+    actualizarBtn.addEventListener('click', () => {
+        origenActual = origenInput.value;
+        destinoActual = destinoInput.value;
+        renderVehiculos();
+    });
+    
+    // Cargar precio (solo conductor)
+    window.cargarPrecio = (id) => {
+        const input = document.getElementById(`precio_${id}`);
+        const precio = input.value;
+        if (precio) {
+            const vehiculo = vehiculos.find(v => v.id === id);
+            vehiculo.precio = parseFloat(precio);
+            vehiculo.estado = "normal";
+            guardarPrecios();  // Guardar en localStorage
+            renderVehiculos();
+            alert(`✅ Precio de $${precio} cargado para ${vehiculo.nombre}`);
+        }
+    };
+    
+    // Elegir vehículo (solo usuario)
+    window.elegirVehiculo = (id) => {
+        vehiculos.forEach(v => {
+            if (v.id === id) {
+                v.estado = "elegido";
+            } else {
+                v.estado = "rechazado";
+            }
+        });
+        renderVehiculos();
+        alert(`✅ Viaje confirmado con ${vehiculos.find(v => v.id === id).nombre}`);
+    };
+    
+    function renderVehiculos() {
+        let html = '<h3 style="margin-bottom: 10px;">🚗 Vehículos disponibles</h3>';
+        
+        vehiculos.forEach(v => {
+            let estadoClass = "normal";
+            if (v.estado === "elegido") estadoClass = "elegido";
+            if (v.estado === "rechazado") estadoClass = "rechazado";
+            
+            html += `<div class="vehiculo ${estadoClass}">`;
+            html += `<div class="vehiculo-nombre">👨‍✈️ ${v.nombre}</div>`;
+            html += `<div class="vehiculo-detalle">🚗 ${v.vehiculo} - ${v.patente}</div>`;
+            html += `<div class="vehiculo-detalle">👥 ${v.capacidad} asientos</div>`;
+            
+            // Mostrar origen y destino si están cargados
+            if (origenActual && destinoActual) {
+                html += `<div class="vehiculo-detalle">📍 ${origenActual} → ${destinoActual}</div>`;
+            }
+            
+            // ========== CONDUCTOR ==========
+            if (rolActual === "conductor") {
+                if (v.nombre === conductorLogueado) {
+                    // Su vehículo: puede cargar precio
+                    html += `<div class="vehiculo-precio">`;
+                    if (v.precio) {
+                        html += `<div style="margin-bottom: 10px;">💰 Precio actual: $${v.precio}</div>`;
+                    }
+                    html += `<input type="number" id="precio_${v.id}" class="vehiculo-input" placeholder="Nuevo precio">`;
+                    html += `<button class="vehiculo-btn" onclick="cargarPrecio(${v.id})">Cargar/Actualizar</button>`;
+                    html += `</div>`;
+                } else {
+                    // Vehículo de otro conductor: NO ve el precio
+                    if (v.precio) {
+                        html += `<div class="vehiculo-detalle" style="color:#999;">💰 Precio cargado</div>`;
+                    } else {
+                        html += `<div class="vehiculo-detalle" style="color:#999;">⏳ Sin precio aún</div>`;
+                    }
+                }
+            }
+            
+            // ========== USUARIO ==========
+            if (rolActual === "usuario" && v.precio && v.estado === "normal") {
+                html += `<div class="vehiculo-precio">💰 $${v.precio}</div>`;
+                html += `<button class="vehiculo-elegir" onclick="elegirVehiculo(${v.id})">✅ Elegir este viaje</button>`;
+            }
+            
+            // Usuario ve cuando no hay precio aún
+            if (rolActual === "usuario" && !v.precio && v.estado !== "elegido" && v.estado !== "rechazado") {
+                html += `<div class="vehiculo-detalle" style="color:#ffc107;">⏳ Esperando precio del conductor...</div>`;
+            }
+            
+            // Si fue elegido
+            if (v.estado === "elegido") {
+                html += `<div style="margin-top: 10px; color: #28a745; font-weight: bold;">✅ VIAJE CONFIRMADO</div>`;
+            }
+            
+            // Si fue rechazado (para usuario)
+            if (v.estado === "rechazado" && rolActual === "usuario") {
+                html += `<div style="margin-top: 10px; color: #dc3545;">❌ No disponible</div>`;
+            }
+            
+            html += `</div>`;
+        });
+        
+        vehiculosContainer.innerHTML = html;
+    }
+    
+    // Render inicial
+    renderVehiculos();
+</script>
+</body>
+</html>

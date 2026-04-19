@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reportes por Vehículo</title>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background: #1a472a; color: white; }
+        button { background: #28a745; color: white; padding: 10px 20px; margin: 5px; border: none; cursor: pointer; border-radius: 5px; }
+        button:hover { background: #218838; }
+        .btn-pdf { background: #dc3545; }
+        .btn-pdf:hover { background: #c82333; }
+        .selector { margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 8px; }
+        select { padding: 8px; margin-left: 10px; border-radius: 4px; border: 1px solid #ddd; }
+        .total-card { background: #e8f5e9; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: center; }
+        .total-number { font-size: 28px; font-weight: bold; color: #ff6b35; }
+    
+    /* === AJUSTES PARA MÓVIL === */
+@media (max-width: 768px) {
+    body { margin: 10px; font-size: 14px; }
+    h1 { font-size: 22px; }
+    button { padding: 8px 16px; font-size: 13px; min-height: 44px; }
+    .selector { padding: 10px; }
+    select { padding: 6px; font-size: 13px; }
+    th, td { padding: 6px; font-size: 12px; }
+    .total-card { padding: 10px; }
+    .total-number { font-size: 22px; }
+}
+    
+    </style>
+    
+    <!-- Librerías para Excel y PDF -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+    <h1>Reporte de Conductores</h1>
+    
+    <div class="selector">
+        <label>📋 Seleccionar conductor:</label>
+        <select id="selectorConductor">
+            <option value="todos">Todos los conductores</option>
+        </select>
+        <button id="btnExcel">📊 Exportar Excel</button>
+        <button id="btnPDF" class="btn-pdf">📄 Exportar PDF</button>
+    </div>
+    
+    <div id="contenedor">Cargando...</div>
+    <div id="totalViajes" class="total-card" style="display:none;"></div>
+
+    <script>
+        let datosCompletos = [];
+        let datosFiltrados = [];
+
+        async function cargarReporte() {
+            try {
+                const res = await fetch('http://localhost:3000/api/encargado/reporte-conductores');
+                const data = await res.json();
+                datosCompletos = data.data;
+                
+                // Cargar selectores
+                const selector = document.getElementById('selectorConductor');
+                for (let i = 0; i < datosCompletos.length; i++) {
+                    const option = document.createElement('option');
+                    option.value = datosCompletos[i].conductor_nombre;
+                    option.textContent = datosCompletos[i].conductor_nombre + ' (' + datosCompletos[i].patente + ')';
+                    selector.appendChild(option);
+                }
+                
+                // Mostrar todos los datos inicialmente
+                datosFiltrados = datosCompletos;
+                generarTabla(datosFiltrados);
+                mostrarTotal(datosFiltrados);
+                
+            } catch (err) {
+                document.getElementById('contenedor').innerHTML = 'Error: ' + err.message;
+            }
+        }
+        
+        // Filtrar por conductor
+        document.getElementById('selectorConductor').addEventListener('change', function() {
+            const valor = this.value;
+            if (valor === 'todos') {
+                datosFiltrados = datosCompletos;
+            } else {
+                datosFiltrados = datosCompletos.filter(item => item.conductor_nombre === valor);
+            }
+            generarTabla(datosFiltrados);
+            mostrarTotal(datosFiltrados);
+        });
+        
+        function mostrarTotal(datos) {
+            const totalDiv = document.getElementById('totalViajes');
+            if (datos.length === 0) {
+                totalDiv.style.display = 'none';
+                return;
+            }
+            
+            let totalViajes = 0;
+            let totalGanado = 0;
+            for (let i = 0; i < datos.length; i++) {
+                totalViajes += datos[i].total_viajes;
+                totalGanado += datos[i].total_ganado;
+            }
+            
+            totalDiv.style.display = 'block';
+            totalDiv.innerHTML = `
+                <strong>📊 Resumen</strong><br>
+                Conductores: ${datos.length}<br>
+                Total Viajes: ${totalViajes}<br>
+                Total Ganado: $${totalGanado.toLocaleString()}
+            `;
+        }
+        
+        function generarTabla(datos) {
+            if (datos.length === 0) {
+                document.getElementById('contenedor').innerHTML = '<p>No hay datos para el conductor seleccionado</p>';
+                return;
+            }
+            
+            let html = '<table id="tablaReporte">';
+            html += '<thead><tr>';
+            html += '<th>Conductor</th><th>Patente</th><th>Viajes</th><th>Total Ganado</th>';
+            html += '</tr></thead><tbody>';
+            
+            for (let i = 0; i < datos.length; i++) {
+                html += '<tr>';
+                html += '<td>' + datos[i].conductor_nombre + '</td>';
+                html += '<td>' + datos[i].patente + '</td>';
+                html += '<td>' + datos[i].total_viajes + '</td>';
+                html += '<td>$' + Number(datos[i].total_ganado).toLocaleString() + '</td>';
+                html += '</tr>';
+            }
+            html += '</tbody></table>';
+            document.getElementById('contenedor').innerHTML = html;
+        }
+        
+        // Exportar Excel
+        document.getElementById('btnExcel').addEventListener('click', function() {
+            if (datosFiltrados.length === 0) {
+                alert('No hay datos para exportar');
+                return;
+            }
+            
+            const datosParaExcel = datosFiltrados.map(item => ({
+                'Conductor': item.conductor_nombre,
+                'Patente': item.patente,
+                'Viajes': item.total_viajes,
+                'Total Ganado': '$' + Number(item.total_ganado).toLocaleString()
+            }));
+            
+            const ws = XLSX.utils.json_to_sheet(datosParaExcel);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Reporte Conductores");
+            
+            ws['!cols'] = [{wch: 25}, {wch: 15}, {wch: 10}, {wch: 15}];
+            
+            XLSX.writeFile(wb, 'Reporte_Conductores_' + new Date().toISOString().slice(0,10) + '.xlsx');
+        });
+        
+        // Exportar PDF
+        document.getElementById('btnPDF').addEventListener('click', function() {
+            if (datosFiltrados.length === 0) {
+                alert('No hay datos para exportar');
+                return;
+            }
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('landscape', 'mm', 'a4');
+            
+            doc.setFontSize(16);
+            doc.text('Reporte de Conductores', 14, 15);
+            doc.setFontSize(10);
+            doc.text('Fecha: ' + new Date().toLocaleDateString('es-ES'), 14, 22);
+            
+            const columnas = ['Conductor', 'Patente', 'Viajes', 'Total Ganado'];
+            const filas = datosFiltrados.map(item => [
+                item.conductor_nombre,
+                item.patente,
+                item.total_viajes,
+                '$' + Number(item.total_ganado).toLocaleString()
+            ]);
+            
+            doc.autoTable({
+                head: [columnas],
+                body: filas,
+                startY: 30,
+                theme: 'grid',
+                headStyles: { fillColor: [26, 71, 42] },
+                styles: { fontSize: 9, cellPadding: 3 }
+            });
+            
+            doc.save('Reporte_Conductores_' + new Date().toISOString().slice(0,10) + '.pdf');
+        });
+        
+        cargarReporte();
+    </script>
+</body>
+</html>
