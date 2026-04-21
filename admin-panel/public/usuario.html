@@ -2,469 +2,142 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Viajes - Usuario</title>
+    <!-- Tus estilos CSS anteriores van aquí -->
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; background: #f0f2f5; padding: 20px; }
-        
-        .container { max-width: 600px; margin: 0 auto; position: relative; z-index: 1; }
-        
-        .header { background: #1a472a; color: white; padding: 20px; text-align: center; border-radius: 12px 12px 0 0; }
-        .logo { font-size: 28px; font-weight: bold; }
-        
-        .tabs { display: flex; background: white; border-radius: 12px 12px 0 0; overflow: hidden; }
-        .tab-btn { flex: 1; padding: 15px; background: #f0f2f5; border: none; cursor: pointer; font-size: 16px; font-weight: bold; }
-        .tab-btn.activo { background: #ff6b35; color: white; }
-        .tab-btn.deshabilitado { background: #ccc; color: #666; cursor: not-allowed; }
-        
-        .tab-content { display: none; background: white; border-radius: 0 0 12px 12px; padding: 20px; margin-bottom: 20px; }
-        .tab-content.activo { display: block; }
-        
+        /* ... (Pega aquí tus estilos CSS del usuario.html anterior) ... */
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-        .form-group input, .form-group textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; font-family: Arial, sans-serif; }
-        .form-group textarea { min-height: 80px; resize: vertical; }
-        
-        .btn { background: #ff6b35; color: white; border: none; padding: 14px; border-radius: 8px; font-size: 16px; cursor: pointer; width: 100%; font-weight: bold; transition: background 0.3s; }
-        .btn:hover { background: #e55a2b; }
-        .btn:disabled { background: #ccc; cursor: not-allowed; }
-        
-        .vehiculo { background: #f9f9f9; border-radius: 12px; padding: 15px; margin-bottom: 10px; border-left: 5px solid #ff6b35; }
-        .vehiculo-nombre { font-weight: bold; font-size: 18px; }
-        .vehiculo-detalle { color: #666; font-size: 14px; margin: 5px 0; }
-        .vehiculo-precio { font-size: 20px; font-weight: bold; color: #ff6b35; margin: 10px 0; }
-        .vehiculo-elegir { background: #28a745; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 10px; font-weight: bold; }
-        
-        .mensaje-espera { text-align: center; padding: 20px; }
-        .mensaje-espera-normal { color: #ffc107; }
-        .mensaje-espera-error { color: #dc3545; }
-        .contador { font-size: 32px; font-weight: bold; color: #ff6b35; margin: 10px 0; }
-        .tiempo-restante { font-size: 18px; color: #666; margin-top: 10px; }
-        
-        .btn-actualizar { background: #17a2b8; color: white; border: none; padding: 10px; border-radius: 8px; margin-top: 10px; width: 100%; cursor: pointer; }
-        .btn-cancelar { background: #dc3545; color: white; border: none; padding: 10px; border-radius: 8px; margin-top: 10px; width: 100%; cursor: pointer; }
-        .btn-conforme-si { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 8px; margin-right: 10px; cursor: pointer; }
-        .btn-conforme-no { background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
-        
-        /* === ESTILOS DEL MODAL DE BLOQUEO === */
-        #modalBloqueo { 
-            display: flex; /* Visible por defecto */
-            position: fixed; 
-            top: 0; left: 0; 
-            width: 100vw; height: 100vh; 
-            background-color: rgba(0,0,0,0.95); 
-            z-index: 99999; 
-            justify-content: center; 
-            align-items: center; 
-            backdrop-filter: blur(10px);
-        }
-
-        .modal-contenido { 
-            background: white; 
-            padding: 30px; 
-            border-radius: 16px; 
-            max-width: 90%; 
-            width: 450px; 
-            text-align: center; 
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5); 
-            animation: aparecer 0.5s ease-out;
-        }
-
-        @keyframes aparecer {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .modal-titulo { color: #1a472a; margin-bottom: 15px; font-size: 24px; }
-        .modal-texto { color: #555; margin-bottom: 20px; line-height: 1.5; font-size: 16px; }
-        .modal-error { 
-            color: #d32f2f; 
-            background: #ffebee; 
-            padding: 10px; 
-            border-radius: 8px;
-            font-size: 14px; 
-            margin-top: 15px; 
-            display: none; 
-            font-weight: bold; 
-        }
-        
-        .oculto { display: none !important; }
-        
-        .btn-secondary { 
-            background: transparent; 
-            color: #666; 
-            border: 1px solid #ccc; 
-            margin-top: 10px; 
-        }
-        .btn-secondary:hover { background: #f0f0f0; color: #333; }
-    
-    /* === AJUSTES DE TAMAÑO PARA MOVIL === */
-@media (max-width: 768px) {
-    body { padding: 10px; font-size: 14px; }
-    .logo { font-size: 22px; }
-    .tab-btn { padding: 10px; font-size: 14px; }
-    .form-group input, .form-group textarea { padding: 10px; font-size: 14px; }
-    .btn { padding: 12px; font-size: 14px; }
-    .vehiculo-nombre { font-size: 16px; }
-    .vehiculo-detalle { font-size: 12px; }
-    .vehiculo-precio { font-size: 16px; }
-    .modal-titulo { font-size: 20px; }
-    .modal-texto { font-size: 14px; }
-    .contador { font-size: 28px; }
-}
+        input { width: 100%; padding: 10px; margin-top: 5px; }
+        button { width: 100%; padding: 12px; background: #ff6b35; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        button:disabled { background: #ccc; }
+        .aviso { padding: 15px; margin-top: 20px; border-radius: 5px; text-align: center; }
+        .espera { background: #fff3cd; color: #856404; }
+        .exito { background: #d4edda; color: #155724; }
     </style>
 </head>
 <body>
 
-    <!-- === MODAL DE BLOQUEO INICIAL === -->
-    <div id="modalBloqueo">
-        <div class="modal-contenido">
-            <h3 class="modal-titulo">🛑 Alto ahí</h3>
-            <p class="modal-texto">Para solicitar un viaje, primero necesitamos confirmar tu ubicación real y evitar bromas.</p>
-            
-            <div class="form-group" style="text-align: left;">
-                <label style="font-size: 14px; color: #333;">📍 ¿Dónde estás exactamente ahora?</label>
-                <textarea id="inputUbicacionInicial" placeholder="Ej: Estoy en la puerta del Supermercado Día, sobre Av. Principal..."></textarea>
-            </div>
-            
-            <button id="btnDesbloquear" class="btn">✅ Confirmar y Habilitar Formulario</button>
-            
-            <!-- BOTÓN PARA SALIR -->
-            <button id="btnSalir" class="btn btn-secondary">❌ Cancelar / Salir</button>
-            
-            <div id="msgErrorInicial" class="modal-error">⚠️ Por favor, sé más específico (mín. 20 caracteres).</div>
+<div class="container">
+    <h2>🚐 Solicitar Viaje</h2>
+    
+    <div id="formularioViaje">
+        <div class="form-group">
+            <label>Origen:</label>
+            <input type="text" id="origen" placeholder="Ej: Calle Falsa 123">
         </div>
+        <div class="form-group">
+            <label>Destino:</label>
+            <input type="text" id="destino" placeholder="Ej: Centro">
+        </div>
+        <div class="form-group">
+            <label>Tu Nombre:</label>
+            <input type="text" id="nombre" placeholder="Juan Perez">
+        </div>
+        <div class="form-group">
+            <label>Teléfono:</label>
+            <input type="tel" id="telefono" placeholder="123456789">
+        </div>
+        <button id="btnEnviar" onclick="solicitarViaje()">📤 Enviar Solicitud</button>
     </div>
 
-    <div class="container">
-        <div class="header">
-            <div class="logo">🚐 Viajes</div>
-            <p>Solicita tu viaje</p>
-        </div>
-        
-        <div class="tabs">
-            <button class="tab-btn activo" id="tabDatosBtn">📝 Datos del viaje</button>
-            <button class="tab-btn deshabilitado" id="tabVehiculosBtn" disabled>🚗 Ver vehículos</button>
-        </div>
-        
-        <div id="tabDatos" class="tab-content activo">
-            <div class="form-group">
-                <label>📍 Origen</label>
-                <input type="text" id="origen" placeholder="Ej: Calle Principal 123">
-            </div>
-            <div class="form-group">
-                <label>🎯 Destino</label>
-                <input type="text" id="destino" placeholder="Ej: Campo Los Álamos">
-            </div>
-            <div class="form-group">
-                <label>👤 Tu nombre</label>
-                <input type="text" id="usuarioNombre" placeholder="Tu nombre">
-            </div>
-            <div class="form-group">
-                <label>📞 Tu teléfono</label>
-                <input type="tel" id="usuarioTelefono" placeholder="Tu teléfono">
-            </div>
-            <button id="enviarBtn" class="btn">📤 Enviar a conductores</button>
-        </div>
-        
-        <div id="tabVehiculos" class="tab-content">
-            <div id="vehiculosContainer"></div>
-        </div>
-    </div>
+    <div id="zonaEstado" style="display:none;"></div>
+</div>
 
-    <script>
-        // === DATOS Y VARIABLES GLOBALES ===
-        let vehiculos = [
-            { id: 1, nombre: "Juan Perez", vehiculo: "Toyota Hilux", patente: "ABC123", capacidad: 5, telefono: "123456789", precio: null },
-            { id: 2, nombre: "Carlos Lopez", vehiculo: "Ford Ranger", patente: "DEF456", capacidad: 5, telefono: "987654321", precio: null },
-            { id: 3, nombre: "Maria Gomez", vehiculo: "Chevrolet S10", patente: "GHI789", capacidad: 5, telefono: "555555555", precio: null }
-        ];
-        
-        let intervaloEspera = null;
-        
-        // Referencias DOM
-        const modalBloqueo = document.getElementById('modalBloqueo');
-        const btnDesbloquear = document.getElementById('btnDesbloquear');
-        const btnSalir = document.getElementById('btnSalir');
-        const inputInicial = document.getElementById('inputUbicacionInicial');
-        const errorInicial = document.getElementById('msgErrorInicial');
-        
-        const enviarBtn = document.getElementById('enviarBtn');
-        const tabDatosBtn = document.getElementById('tabDatosBtn');
-        const tabVehiculosBtn = document.getElementById('tabVehiculosBtn');
+<script>
+    const API_URL = 'http://localhost:3000/api';
+    let miViajeId = null;
+    let intervaloVerificacion = null;
 
-        // === LÓGICA DE SALIDA (CANCELAR) ===
-        btnSalir.addEventListener('click', () => {
-            if(confirm("¿Seguro que quieres salir? Se borrará cualquier dato guardado.")) {
-                localStorage.clear(); // Borra todo
-                location.reload(); // Recarga para limpiar estado visual
-            }
-        });
+    async function solicitarViaje() {
+        const origen = document.getElementById('origen').value;
+        const destino = document.getElementById('destino').value;
+        const nombre = document.getElementById('nombre').value;
+        const telefono = document.getElementById('telefono').value;
 
-        // === LÓGICA DE DESBLOQUEO INICIAL ===
-        btnDesbloquear.addEventListener('click', () => {
-            const texto = inputInicial.value.trim();
-            
-            // Validación estricta
-            if (texto.length < 20) {
-                errorInicial.style.display = "block";
-                errorInicial.textContent = "⚠️ Necesitamos una descripción detallada (mín. 20 caracteres).";
-                return;
-            }
-
-            const prohibidas = ['jaja', 'broma', 'test', 'prueba', 'asdf', 'lol', 'xd', 'fake'];
-            if (prohibidas.some(p => texto.toLowerCase().includes(p))) {
-                errorInicial.style.display = "block";
-                errorInicial.textContent = "⚠️ Detectamos una posible broma. Sé serio por favor.";
-                return;
-            }
-
-            // ✅ GENERAR ID ÚNICO DE SOLICITUD
-            // Esto asegura que si el usuario reinicia, los conductores vean una solicitud nueva
-            const nuevoIdSolicitud = Date.now().toString();
-            localStorage.setItem('idSolicitudActual', nuevoIdSolicitud);
-
-            // Si pasa validaciones:
-            localStorage.setItem('ubicacionUsuario', texto);
-            
-            // Ocultar modal y habilitar app
-            modalBloqueo.classList.add('oculto');
-            
-            // Enfocar el primer campo del formulario automáticamente
-            setTimeout(() => document.getElementById('origen').focus(), 300);
-        });
-
-        // === LÓGICA DE ENVÍO DE SOLICITUD ===
-        enviarBtn.addEventListener('click', () => {
-            const origen = document.getElementById('origen').value;
-            const destino = document.getElementById('destino').value;
-            const nombre = document.getElementById('usuarioNombre').value;
-            const tel = document.getElementById('usuarioTelefono').value;
-
-            if (!origen || !destino || !nombre || !tel) {
-                alert("⚠️ Completá todos los campos del formulario.");
-                return;
-            }
-
-            if(!confirm(`¿Confirmar envío desde:\n"${origen}"\nhacia:\n"${destino}"?`)) {
-                return;
-            }
-
-            procesarEnvio(origen, destino, nombre, tel);
-        });
-
-        function procesarEnvio(origen, destino, usuarioNombre, usuarioTelefono) {
-            localStorage.setItem('usuarioNombre', usuarioNombre);
-            localStorage.setItem('usuarioTelefono', usuarioTelefono);
-            localStorage.setItem('origenActual', origen);
-            localStorage.setItem('destinoActual', destino);
-            
-            // Limpiar estado anterior de vehículos/precios, PERO MANTENER EL ID DE SOLICITUD
-            localStorage.removeItem('preciosVehiculos');
-            localStorage.removeItem('vehiculoElegido');
-            localStorage.removeItem('hora_salida');
-            localStorage.removeItem('hora_fin');
-            localStorage.removeItem('conforme');
-            vehiculos.forEach(v => v.precio = null);
-            
-            enviarBtn.disabled = true;
-            enviarBtn.textContent = '⏳ Enviado...';
-            
-            const ubicacionGuardada = localStorage.getItem('ubicacionUsuario');
-            document.getElementById('vehiculosContainer').innerHTML = `<div class="mensaje-espera mensaje-espera-normal">
-                ⏳ Solicitud enviada a los conductores<br><br>
-                📍 Tu ubicación verificada: <em>${ubicacionGuardada.substring(0, 60)}...</em><br>
-                📍 Origen: ${origen}<br>
-                🎯 Destino: ${destino}<br><br>
-                <span class="contador">0/${vehiculos.length}</span><br>
-                conductores respondieron<br>
-                <div class="tiempo-restante">Tiempo de espera: 60 segundos</div>
-            </div>`;
-            
-            tabVehiculosBtn.disabled = false;
-            tabVehiculosBtn.classList.remove('deshabilitado');
-            
-            cambiarPestana('vehiculos');
-            iniciarEspera();
+        if(!origen || !destino || !nombre || !telefono) {
+            alert("Completa todos los campos");
+            return;
         }
 
-        function iniciarEspera() {
-            let tiempoEspera = 60;
-            let segundosTranscurridos = 0;
-            
-            if (intervaloEspera) clearInterval(intervaloEspera);
-            
-            intervaloEspera = setInterval(() => {
-                segundosTranscurridos += 3;
-                cargarPrecios();
-                
-                const preciosCargados = vehiculos.filter(v => v.precio !== null).length;
-                const contadorSpan = document.querySelector('#vehiculosContainer .contador');
-                
-                if (contadorSpan) contadorSpan.innerHTML = `${preciosCargados}/${vehiculos.length}`;
-                
-                if (preciosCargados > 0) renderVehiculos();
-                
-                if (preciosCargados === vehiculos.length) {
-                    clearInterval(intervaloEspera);
-                    enviarBtn.disabled = false;
-                    enviarBtn.textContent = '📤 Enviar a conductores';
-                }
-                
-                if (segundosTranscurridos >= tiempoEspera) {
-                    clearInterval(intervaloEspera);
-                    enviarBtn.disabled = false;
-                    enviarBtn.textContent = '📤 Enviar a conductores';
-                    if (preciosCargados === 0) {
-                        document.getElementById('vehiculosContainer').innerHTML = '<div class="mensaje-espera mensaje-espera-error">❌ Sin respuestas. Intentá de nuevo.</div>';
-                    }
-                }
-            }, 3000);
-        }
+        const btn = document.getElementById('btnEnviar');
+        btn.disabled = true;
+        btn.innerText = "Enviando...";
 
-        // === FUNCIONES AUXILIARES ===
-        
-        function cambiarPestana(pestana) {
-            if (pestana === 'datos') {
-                tabDatosBtn.classList.add('activo');
-                tabVehiculosBtn.classList.remove('activo');
-                document.getElementById('tabDatos').classList.add('activo');
-                document.getElementById('tabVehiculos').classList.remove('activo');
-            } else if (pestana === 'vehiculos' && !tabVehiculosBtn.disabled) {
-                tabDatosBtn.classList.remove('activo');
-                tabVehiculosBtn.classList.add('activo');
-                document.getElementById('tabDatos').classList.remove('activo');
-                document.getElementById('tabVehiculos').classList.add('activo');
-                renderVehiculos();
-            }
-        }
-        
-        function cargarPrecios() {
-            const preciosGuardados = localStorage.getItem('preciosVehiculos');
-            if (preciosGuardados) {
-                const precios = JSON.parse(preciosGuardados);
-                for (let i = 0; i < vehiculos.length; i++) {
-                    if (precios[vehiculos[i].id]) {
-                        vehiculos[i].precio = precios[vehiculos[i].id];
-                    }
-                }
-            }
-        }
-        
-        window.marcarConforme = async (valor) => {
-            localStorage.setItem('conforme', valor);
-            const patente = localStorage.getItem('patenteConductor');
-            if (patente) {
-                try {
-                    await fetch('http://localhost:3000/api/actualizar-conforme', {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ patente: patente, conforme: valor })
-                    });
-                } catch (e) { console.log('Error API:', e); }
-            }
-            alert(valor === 'si' ? '✅ Gracias' : '❌ Lamentamos el inconveniente');
-            renderVehiculos();
-        };
-        
-        function renderVehiculos() {
-            const container = document.getElementById('vehiculosContainer');
-            let html = '';
-            let hayPrecios = false;
+        try {
+            // 1. Guardar en MySQL
+            const res = await fetch(`${API_URL}/solicitar-viaje`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ usuario_nombre: nombre, usuario_telefono: telefono, origen, destino })
+            });
             
-            const horaSalida = localStorage.getItem('hora_salida');
-            const horaFin = localStorage.getItem('hora_fin');
-            const conforme = localStorage.getItem('conforme');
-            const vehiculoElegido = localStorage.getItem('vehiculoElegido');
+            const data = await res.json();
             
-            if (vehiculoElegido) {
-                const elegido = vehiculos.find(v => v.id == vehiculoElegido);
-                if (elegido) {
-                    html = `<div style="background: #d4edda; padding: 20px; border-radius: 12px; text-align: center;">
-                        <h3>✅ VIAJE CONFIRMADO</h3>
-                        <p><strong>Conductor:</strong> ${elegido.nombre}</p>
-                        <p><strong>Vehículo:</strong> ${elegido.vehiculo} - ${elegido.patente}</p>
-                        <p><strong>Precio:</strong> $${elegido.precio}</p>`;
-                    
-                    if (horaSalida) html += `<p>🕐 Salida: ${new Date(horaSalida).toLocaleString()}</p>`;
-                    if (horaFin) html += `<p>🕐 Llegada: ${new Date(horaFin).toLocaleString()}</p>`;
-                    
-                    if (horaFin && (!conforme || conforme === 'pendiente')) {
-                        html += `<div style="margin-top: 15px; border-top: 1px solid #ddd; padding-top: 15px;">
-                            <p><strong>¿Estás conforme?</strong></p>
-                            <button class="btn-conforme-si" onclick="marcarConforme('si')">✅ Sí</button>
-                            <button class="btn-conforme-no" onclick="marcarConforme('no')">❌ No</button>
-                        </div>`;
-                    } else if (conforme && conforme !== 'pendiente') {
-                        html += `<p>✅ Conforme: ${conforme === 'si' ? 'Sí' : 'No'}</p>`;
-                    }
-                    
-                    html += `<p style="margin-top:15px"><strong>El conductor se contactará.</strong></p>
-                        <button class="btn-cancelar" onclick="cancelarViaje()">❌ Cancelar</button>
-                        <button class="btn-actualizar" onclick="location.reload()">🔄 Actualizar</button>
-                    </div>`;
-                    container.innerHTML = html;
-                    return;
-                }
-            }
-            
-            for (let i = 0; i < vehiculos.length; i++) {
-                const v = vehiculos[i];
-                if (v.precio !== null && v.precio !== undefined) {
-                    hayPrecios = true;
-                    html += `<div class="vehiculo">
-                        <div class="vehiculo-nombre">👨‍✈️ ${v.nombre}</div>
-                        <div class="vehiculo-detalle">🚗 ${v.vehiculo} - ${v.patente}</div>
-                        <div class="vehiculo-detalle">👥 ${v.capacidad} asientos</div>
-                        <div class="vehiculo-detalle">📞 ${v.telefono}</div>
-                        <div class="vehiculo-precio">💰 $${v.precio}</div>
-                        <button class="vehiculo-elegir" onclick="elegirVehiculo(${v.id})">✅ Elegir</button>
-                    </div>`;
-                }
-            }
-            
-            if (!hayPrecios) {
-                container.innerHTML = '<div class="mensaje-espera mensaje-espera-normal">⏳ Esperando precios...</div>';
+            if(data.success) {
+                miViajeId = data.viaje_id;
+                mostrarEspera();
+                iniciarVerificacionOfertas();
             } else {
-                container.innerHTML = html;
+                alert("Error al guardar viaje");
+                btn.disabled = false;
+                btn.innerText = "📤 Enviar Solicitud";
             }
+        } catch (e) {
+            console.error(e);
+            alert("Error de conexión");
+            btn.disabled = false;
         }
+    }
 
-        window.cancelarViaje = () => {
-            if(confirm("¿Cancelar viaje?")) {
-                localStorage.removeItem('vehiculoElegido');
-                localStorage.removeItem('hora_salida');
-                localStorage.removeItem('hora_fin');
-                localStorage.removeItem('conforme');
-                location.reload();
-            }
-        };
-        
-        window.elegirVehiculo = (id) => {
-            const vehiculo = vehiculos.find(v => v.id === id);
-            const origen = document.getElementById('origen').value;
-            const destino = document.getElementById('destino').value;
-            const usuarioNombre = document.getElementById('usuarioNombre').value;
-            const usuarioTelefono = document.getElementById('usuarioTelefono').value;
-            
-            localStorage.setItem('usuarioNombre', usuarioNombre);
-            localStorage.setItem('usuarioTelefono', usuarioTelefono);
-            localStorage.setItem('patenteConductor', vehiculo.patente);
-            
-            if (confirm(`¿Confirmar viaje con ${vehiculo.nombre} por $${vehiculo.precio}?`)) {
-                localStorage.setItem('vehiculoElegido', id);
-                alert(`✅ VIAJE CONFIRMADO`);
-                renderVehiculos();
-            }
-        };
-        
-        tabDatosBtn.onclick = () => cambiarPestana('datos');
-        tabVehiculosBtn.onclick = () => cambiarPestana('vehiculos');
-        
-        setInterval(() => {
-            if (localStorage.getItem('vehiculoElegido')) renderVehiculos();
+    function mostrarEspera() {
+        document.getElementById('formularioViaje').style.display = 'none';
+        const zona = document.getElementById('zonaEstado');
+        zona.style.display = 'block';
+        zona.className = 'aviso espera';
+        zona.innerHTML = `
+            <h3>⏳ Esperando conductores...</h3>
+            <p>Tu solicitud está en la base de datos.</p>
+            <p>Los conductores verán tu pedido en sus pantallas.</p>
+            <div id="listaOfertas"></div>
+        `;
+    }
+
+    function iniciarVerificacionOfertas() {
+        // Verificar cada 5 segundos si hay ofertas en la BD
+        intervaloVerificacion = setInterval(async () => {
+            if(!miViajeId) return;
+
+            try {
+                const res = await fetch(`${API_URL}/usuario/verificar-ofertas/${miViajeId}`);
+                const data = await res.json();
+                
+                if(data.success && data.data) {
+                    const viaje = data.data;
+                    
+                    // Si el estado cambió a 'cotizando' o hay costo
+                    if(viaje.estado === 'cotizando' && viaje.costo) {
+                        clearInterval(intervaloVerificacion);
+                        mostrarExito(viaje);
+                    }
+                }
+            } catch(e) { console.error(e); }
         }, 5000);
-    </script>
+    }
+
+    function mostrarExito(viaje) {
+        const zona = document.getElementById('zonaEstado');
+        zona.className = 'aviso exito';
+        zona.innerHTML = `
+            <h3>✅ ¡Tenemos una oferta!</h3>
+            <p>Precio ofertado: <strong>$${viaje.costo}</strong></p>
+            <p>El conductor se contactará contigo al ${viaje.usuario_telefono}.</p>
+            <button onclick="location.reload()">Solicitar otro viaje</button>
+        `;
+    }
+</script>
+
 </body>
 </html>

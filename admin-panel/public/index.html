@@ -38,6 +38,33 @@
             font-size: 12px;
         }
         .role-encargado { background: #28a745; color: white; }
+
+        /* ... tus estilos existentes ... */
+        
+        /* --- AGREGA ESTO --- */
+        
+        /* 1. Por defecto, ocultamos TODAS las pestañas */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out; /* Opcional: efecto suave */
+        }
+
+        /* 2. Solo mostramos la que tenga la clase 'active' */
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Efecto suave opcional */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* ------------------- */
+
+        #appContent { display: none; }
+        #appContent.visible { display: flex; }
+        /* ... resto de tus estilos ... */        
     </style>
 </head>
 <body>
