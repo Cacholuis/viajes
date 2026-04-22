@@ -1,90 +1,89 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes"
+    />
     <title>Viajes - Conductor</title>
-    <link rel="stylesheet" href="src/css/styles.css">
-</head>
-<body>
+    <style>
+    #bienvenida { display: none; }
+    </style>
+    <link rel="stylesheet" href="src/css/styles.css" />
+  </head>
+  <body>
     <div class="container">
-        <div class="header">
-            <div class="logo">🚐 Viajes</div>
-            <p>Panel del Conductor</p>
-        </div>
-        
-        <!-- === AVISO DE SOLICITUDES (Visible siempre) === -->
-        <div id="avisoSolicitudes" class="aviso-solicitudes">
-            <div class="aviso-titulo">📡 Buscando solicitudes...</div>
-            <div class="aviso-detalle">No hay viajes pendientes en este momento.</div>
-        </div>
-        <!-- ========================================================== -->
+      <div class="header">
+        <div class="logo">🚐 Viajes</div>
+        <p>Panel del Conductor</p>
+      </div>
 
-        <!-- Pantalla de Login -->
-        <div id="loginScreen" class="card login-card">
-            <h3>🔑 Acceso Conductor</h3>
-            <div class="form-group">
-                <label>🚗 Patente del vehículo</label>
-                <input type="text" id="codigoPatente" placeholder="Ej: ABC123" style="text-transform: uppercase;">
-            </div>
-            <div class="form-group">
-                <label>🔐 Contraseña</label>
-                <input type="password" id="contrasena" placeholder="******">
-            </div>
-            <button id="loginBtn" class="btn">Ingresar</button>
-            <div id="loginError" class="error-msg">❌ Patente o contraseña incorrecta</div>
-            <div class="info-text">La contraseña fue proporcionada por el encargado</div>
+      <!-- === AVISO DE SOLICITUDES (Visible siempre) === -->
+      <div id="avisoSolicitudes" class="aviso-solicitudes">
+        <div class="aviso-titulo">📡 Buscando solicitudes...</div>
+        <div class="aviso-detalle">
+          No hay viajes pendientes en este momento.
         </div>
-        
-        <!-- Pantalla Principal -->
-        <div id="mainScreen" class="oculto">
-            <div class="card">
-                <div id="bienvenida" style="margin-bottom: 15px; font-weight: bold; font-size: 18px;"></div>
-                <div class="form-group">
-                    <label>📍 Origen del usuario</label>
-                    <input type="text" id="origen" readonly placeholder="Esperando solicitud...">
-                </div>
-                <div class="form-group">
-                    <label>🎯 Destino del usuario</label>
-                    <input type="text" id="destino" readonly placeholder="Esperando solicitud...">
-                </div>
-                <button id="logoutBtn" class="logout-btn">Cerrar Sesión</button>
-            </div>
-            
-            <div id="vehiculoContainer"></div>
+      </div>
+      <!-- ========================================================== -->
+
+      <!-- Pantalla de Login -->
+      <div id="loginScreen" class="card login-card">
+        <h3>🔑 Acceso Conductor</h3>
+        <div class="form-group">
+          <label>🚗 Patente del vehículo</label>
+          <input
+            type="text"
+            id="codigoPatente"
+            placeholder="Ej: ABC123"
+            style="text-transform: uppercase"
+          />
         </div>
+        <div class="form-group">
+          <label>🔐 Contraseña</label>
+          <input type="password" id="contrasena" placeholder="******" />
+        </div>
+        <button id="loginBtn" class="btn">Ingresar</button>
+        <div id="loginError" class="error-msg">
+          ❌ Patente o contraseña incorrecta
+        </div>
+        <div class="info-text">
+          La contraseña fue proporcionada por el encargado
+        </div>
+      </div>
+
+      <!-- Pantalla Principal -->
+<!-- Pantalla Principal -->
+<!-- Pantalla Principal -->
+<div id="mainScreen" class="oculto">
+    <div class="card">
+    <div id="bienvenida" style="margin-bottom: 15px; font-weight: bold; font-size: 18px;"></div> -->
+        <button id="logoutBtn" class="logout-btn">Cerrar Sesión</button>
     </div>
+    
+    <div id="vehiculoContainer"></div>
+</div>
 
     <script>
-        // DATOS DE VEHÍCULOS REGISTRADOS
-        const vehiculosRegistrados = {
-            "ABC123": { id: 1, nombre: "Juan Perez", vehiculo: "Toyota Hilux", patente: "ABC123", capacidad: 5, telefono: "123456789", precio: null, password_hash: "conductor123" },
-            "DEF456": { id: 2, nombre: "Carlos Lopez", vehiculo: "Ford Ranger", patente: "DEF456", capacidad: 5, telefono: "987654321", precio: null, password_hash: "conductor123" },
-            "GHI789": { id: 3, nombre: "Maria Gomez", vehiculo: "Chevrolet S10", patente: "GHI789", capacidad: 5, telefono: "555555555", precio: null, password_hash: "conductor123" }
-        };
-        
-        function verificarPassword(passwordIngresada, hashGuardado) {
-            return passwordIngresada === "conductor123";
-        }
-        
-        let conductorActual = null;
-        let miVehiculo = null;
-        let origenActual = "";
-        let destinoActual = "";
-        let lastSolicitudId = null; // Para rastrear si cambió la solicitud
-        
-        // === FUNCIÓN PARA ACTUALIZAR EL AVISO DE SOLICITUDES ===
-        function actualizarAvisoSolicitudes() {
-            const avisoDiv = document.getElementById('avisoSolicitudes');
-            if (!avisoDiv) return;
+      let conductorActual = null;
+      let miVehiculo = null;
+      let origenActual = "";
+      let destinoActual = "";
+      let lastSolicitudId = null; // Para rastrear si cambió la solicitud
 
-            const origen = localStorage.getItem('origenActual');
-            const destino = localStorage.getItem('destinoActual');
-            const vehiculoElegido = localStorage.getItem('vehiculoElegido');
+      // === FUNCIÓN PARA ACTUALIZAR EL AVISO DE SOLICITUDES ===
+      function actualizarAvisoSolicitudes() {
+        const avisoDiv = document.getElementById("avisoSolicitudes");
+        if (!avisoDiv) return;
 
-            if (origen && destino && !vehiculoElegido) {
-                avisoDiv.classList.add('activo');
-                avisoDiv.innerHTML = `
+        const origen = localStorage.getItem("origenActual");
+        const destino = localStorage.getItem("destinoActual");
+        const vehiculoElegido = localStorage.getItem("vehiculoElegido");
+
+        if (origen && destino && !vehiculoElegido) {
+          avisoDiv.classList.add("activo");
+          avisoDiv.innerHTML = `
                     <div class="aviso-titulo">🔔 ¡NUEVA SOLICITUD DISPONIBLE!</div>
                     <div class="aviso-detalle">
                         Un usuario está esperando precio.<br>
@@ -93,246 +92,318 @@
                         <span style="font-size:12px; color:#666;">Ingresa tu contraseña para ofertar.</span>
                     </div>
                 `;
-            } else if (origen && destino && vehiculoElegido) {
-                 avisoDiv.classList.remove('activo');
-                 avisoDiv.style.background = "#e2e3e5";
-                 avisoDiv.style.color = "#383d41";
-                 avisoDiv.innerHTML = `<div class="aviso-titulo">💼 Hay un viaje en curso/asignado</div>`;
-            } else {
-                avisoDiv.classList.remove('activo');
-                avisoDiv.innerHTML = `
+        } else if (origen && destino && vehiculoElegido) {
+          avisoDiv.classList.remove("activo");
+          avisoDiv.style.background = "#e2e3e5";
+          avisoDiv.style.color = "#383d41";
+          avisoDiv.innerHTML = `<div class="aviso-titulo">💼 Hay un viaje en curso/asignado</div>`;
+        } else {
+          avisoDiv.classList.remove("activo");
+          avisoDiv.innerHTML = `
                     <div class="aviso-titulo">📡 Esperando solicitudes...</div>
                     <div class="aviso-detalle">No hay viajes pendientes en este momento.</div>
                 `;
-            }
         }
+      }
 
-        // === DETECTOR DE NUEVA SOLICITUD (RESET AUTOMÁTICO) ===
-        function verificarNuevaSolicitud() {
-            if (!miVehiculo) return; // Solo si está logueado
+      // === DETECTOR DE NUEVA SOLICITUD (RESET AUTOMÁTICO) ===
+      function verificarNuevaSolicitud() {
+        if (!miVehiculo) return; // Solo si está logueado
 
-            const idSolicitudActual = localStorage.getItem('idSolicitudActual');
-            
-            // Si hay un ID de solicitud y es DIFERENTE al que teníamos guardado
-            if (idSolicitudActual && idSolicitudActual !== lastSolicitudId) {
-                console.log("🔄 Nueva solicitud detectada (ID: " + idSolicitudActual + "). Reseteando conductor...");
-                
-                lastSolicitudId = idSolicitudActual;
-                
-                // 1. Limpiar precio actual de ESTE conductor
-                miVehiculo.precio = null;
-                
-                // 2. Borrar el precio de ESTE conductor del almacenamiento global
-                const preciosGuardados = localStorage.getItem('preciosVehiculos');
-                if (preciosGuardados) {
-                    let precios = JSON.parse(preciosGuardados);
-                    delete precios[miVehiculo.id]; // Borra solo mi precio
-                    localStorage.setItem('preciosVehiculos', JSON.stringify(precios));
-                }
+        const idSolicitudActual = localStorage.getItem("idSolicitudActual");
 
-                // 3. Actualizar la interfaz
-                renderMiVehiculo();
-            }
+        // Si hay un ID de solicitud y es DIFERENTE al que teníamos guardado
+        if (idSolicitudActual && idSolicitudActual !== lastSolicitudId) {
+          console.log(
+            "🔄 Nueva solicitud detectada (ID: " +
+              idSolicitudActual +
+              "). Reseteando conductor...",
+          );
+
+          lastSolicitudId = idSolicitudActual;
+
+          // 1. Limpiar precio actual de ESTE conductor
+          miVehiculo.precio = null;
+
+          // 2. Borrar el precio de ESTE conductor del almacenamiento global
+          const preciosGuardados = localStorage.getItem("preciosVehiculos");
+          if (preciosGuardados) {
+            let precios = JSON.parse(preciosGuardados);
+            delete precios[miVehiculo.id]; // Borra solo mi precio
+            localStorage.setItem("preciosVehiculos", JSON.stringify(precios));
+          }
+
+          // 3. Actualizar la interfaz
+          renderMiVehiculo();
         }
+      }
 
-        // Ejecutar chequeos cada 2 segundos
-        setInterval(actualizarAvisoSolicitudes, 2000);
-        setInterval(verificarNuevaSolicitud, 2000); 
-        // =======================================================
+      // Ejecutar chequeos cada 2 segundos
+      setInterval(actualizarAvisoSolicitudes, 2000);
+      setInterval(verificarNuevaSolicitud, 2000);
+      // =======================================================
 
-        function cargarPrecioGuardado() {
-            const preciosGuardados = localStorage.getItem('preciosVehiculos');
-            if (preciosGuardados && miVehiculo) {
-                const precios = JSON.parse(preciosGuardados);
-                if (precios[miVehiculo.id]) {
-                    miVehiculo.precio = precios[miVehiculo.id];
-                }
-            }
+      function cargarPrecioGuardado() {
+        const preciosGuardados = localStorage.getItem("preciosVehiculos");
+        if (preciosGuardados && miVehiculo) {
+          const precios = JSON.parse(preciosGuardados);
+          if (precios[miVehiculo.id]) {
+            miVehiculo.precio = precios[miVehiculo.id];
+          }
         }
+      }
+
+      function guardarPrecio() {
+        const preciosGuardados = localStorage.getItem("preciosVehiculos");
+        let precios = preciosGuardados ? JSON.parse(preciosGuardados) : {};
+        precios[miVehiculo.id] = miVehiculo.precio;
+        localStorage.setItem("preciosVehiculos", JSON.stringify(precios));
+      }
+
+function cargarOrigenDestino() {
+    const origenGuardado = localStorage.getItem('origenActual');
+    const destinoGuardado = localStorage.getItem('destinoActual');
+    
+    if (origenGuardado && destinoGuardado) {
+        origenActual = origenGuardado;
+        destinoActual = destinoGuardado;
+    } else {
+        origenActual = '';
+        destinoActual = '';
+    }
+    
+    renderMiVehiculo();
+}
+
+function escucharCambiosUsuario() {
+    setInterval(() => {
+        const origenNuevo = localStorage.getItem('origenActual');
+        const destinoNuevo = localStorage.getItem('destinoActual');
         
-        function guardarPrecio() {
-            const preciosGuardados = localStorage.getItem('preciosVehiculos');
-            let precios = preciosGuardados ? JSON.parse(preciosGuardados) : {};
-            precios[miVehiculo.id] = miVehiculo.precio;
-            localStorage.setItem('preciosVehiculos', JSON.stringify(precios));
-        }
-        
-        function cargarOrigenDestino() {
-            const origenGuardado = localStorage.getItem('origenActual');
-            const destinoGuardado = localStorage.getItem('destinoActual');
-            
-            if (origenGuardado && destinoGuardado) {
-                origenActual = origenGuardado;
-                destinoActual = destinoGuardado;
-                document.getElementById('origen').value = origenActual;
-                document.getElementById('destino').value = destinoActual;
-            } else {
-                document.getElementById('origen').value = '';
-                document.getElementById('destino').value = '';
-            }
+        if (origenNuevo !== origenActual || destinoNuevo !== destinoActual) {
+            origenActual = origenNuevo || '';
+            destinoActual = destinoNuevo || '';
             renderMiVehiculo();
         }
-        
-        function escucharCambiosUsuario() {
-            setInterval(() => {
-                const origenNuevo = localStorage.getItem('origenActual');
-                const destinoNuevo = localStorage.getItem('destinoActual');
-                
-                if (origenNuevo !== origenActual || destinoNuevo !== destinoActual) {
-                    origenActual = origenNuevo;
-                    destinoActual = destinoNuevo;
-                    document.getElementById('origen').value = origenActual || "";
-                    document.getElementById('destino').value = destinoActual || "";
-                    renderMiVehiculo();
-                }
-            }, 3000);
-        }
-        
-        function verificarSiFueElegido() {
-            const vehiculoElegido = localStorage.getItem('vehiculoElegido');
-            if (vehiculoElegido && miVehiculo) {
-                const fueElegido = (parseInt(vehiculoElegido) === miVehiculo.id);
-                if (miVehiculo.elegido !== fueElegido) {
-                    miVehiculo.elegido = fueElegido;
-                    renderMiVehiculo();
-                }
-            }
-        }
-        
-        function iniciarViaje() {
-            const ahora = new Date().toISOString().slice(0, 19).replace('T', ' ');
-            localStorage.setItem('hora_salida', ahora);
-            alert(`✅ Viaje iniciado a las ${new Date(ahora).toLocaleTimeString()}`);
-            renderMiVehiculo();
-        }
-        
-        function finalizarViaje() {
-            const ahora = new Date().toISOString().slice(0, 19).replace('T', ' ');
-            localStorage.setItem('hora_fin', ahora);
-            // guardarViajeEnBD(); // Descomentar si tienes backend
-            alert(`✅ Viaje finalizado a las ${new Date(ahora).toLocaleTimeString()}`);
-            renderMiVehiculo();
-        }
-        
-        window.cargarPrecio = () => {
-            const precioInput = document.getElementById('precioInput');
-            const precio = precioInput.value;
-            if (precio && miVehiculo) {
-                miVehiculo.precio = parseFloat(precio);
-                guardarPrecio();
-                renderMiVehiculo();
-                alert(`✅ Precio de $${precio} cargado correctamente`);
-            } else {
-                alert('Ingresá un precio válido');
-            }
-        };
-        
-        function renderMiVehiculo() {
-            const container = document.getElementById('vehiculoContainer');
-            if (!miVehiculo) return;
-            
-            let estadoClass = "";
-            let estadoTexto = "";
-            
-            const vehiculoElegido = localStorage.getItem('vehiculoElegido');
-            const horaSalida = localStorage.getItem('hora_salida');
-            const horaFin = localStorage.getItem('hora_fin');
-            
-            if (vehiculoElegido && parseInt(vehiculoElegido) === miVehiculo.id) {
-                estadoClass = "vehiculo-elegido";
-                estadoTexto = '<div style="background: #28a745; color: white; padding: 10px; border-radius: 8px; margin-top: 10px; text-align: center;">✅ ¡VIAJE CONFIRMADO! El usuario te eligió.</div>';
-            } else if (vehiculoElegido && parseInt(vehiculoElegido) !== miVehiculo.id) {
-                estadoClass = "vehiculo-rechazado";
-                estadoTexto = '<div style="background: #dc3545; color: white; padding: 10px; border-radius: 8px; margin-top: 10px; text-align: center;">❌ El usuario eligió otro vehículo</div>';
-            }
-            
-            let html = `<div class="vehiculo ${estadoClass}">`;
-            html += `<div class="vehiculo-nombre">👨‍✈️ ${miVehiculo.nombre}</div>`;
-            html += `<div class="vehiculo-detalle">🚗 ${miVehiculo.vehiculo} - ${miVehiculo.patente}</div>`;
-            html += `<div class="vehiculo-detalle">👥 ${miVehiculo.capacidad} asientos</div>`;
-            html += `<div class="vehiculo-detalle">📞 ${miVehiculo.telefono}</div>`;
-            
-            if (origenActual && destinoActual) {
-                html += `<div class="vehiculo-detalle">📍 ${origenActual} → ${destinoActual}</div>`;
-            }
-            
-            if (miVehiculo.precio) {
-                html += `<div class="vehiculo-precio">💰 Precio actual: $${miVehiculo.precio}</div>`;
-            }
-            
-            if (vehiculoElegido && parseInt(vehiculoElegido) === miVehiculo.id) {
-                if (!horaSalida) html += `<button class="btn-iniciar" onclick="iniciarViaje()">🚗 Iniciar Viaje</button>`;
-                if (horaSalida && !horaFin) html += `<button class="btn-finalizar" onclick="finalizarViaje()">🏁 Finalizar Viaje</button>`;
-            }
-            
-            if (horaSalida) html += `<div class="vehiculo-detalle" style="color: #17a2b8;">🕐 Salida: ${new Date(horaSalida).toLocaleString()}</div>`;
-            if (horaFin) html += `<div class="vehiculo-detalle" style="color: #28a745;">🕐 Llegada: ${new Date(horaFin).toLocaleString()}</div>`;
-            
-            // Si NO fue elegido aún, mostrar input para cargar precio
-            if (!vehiculoElegido || (vehiculoElegido && parseInt(vehiculoElegido) !== miVehiculo.id)) {
-                html += `<div class="vehiculo-precio">`;
-                html += `<input type="number" id="precioInput" class="precio-input" placeholder="Precio" value="${miVehiculo.precio || ''}">`;
-                html += `<button class="precio-btn" onclick="cargarPrecio()">Cargar Precio</button>`;
-                html += `</div>`;
-            }
-            
-            html += estadoTexto;
-            html += `</div>`;
-            container.innerHTML = html;
-        }
-        
-        // Login
-        document.getElementById('loginBtn').addEventListener('click', () => {
-            let patente = document.getElementById('codigoPatente').value.toUpperCase().trim();
-            patente = patente.replace(/-/g, '');
-            const contrasena = document.getElementById('contrasena').value;
-            
-            const vehiculo = vehiculosRegistrados[patente];
-            
-            if (vehiculo && verificarPassword(contrasena, vehiculo.password_hash)) {
-                conductorActual = patente;
-                miVehiculo = { ...vehiculo };
-                
-                // Cargar precio guardado (si existe para ESTA solicitud)
-                cargarPrecioGuardado();
-                
-                // Marcar el ID actual como "visto" para no resetear al entrar
-                lastSolicitudId = localStorage.getItem('idSolicitudActual');
+    }, 3000);
+}
 
-                localStorage.setItem('conductorActual', patente);
-                localStorage.setItem('vehiculoActual', JSON.stringify(miVehiculo));
-                
-                document.getElementById('loginScreen').classList.add('oculto');
-                document.getElementById('mainScreen').classList.remove('oculto');
-                document.getElementById('bienvenida').innerHTML = `👨‍✈️ Bienvenido, ${miVehiculo.nombre}`;
-                document.getElementById('loginError').style.display = 'none';
-                
-                cargarOrigenDestino();
-                renderMiVehiculo();
-                escucharCambiosUsuario();
-                setInterval(verificarSiFueElegido, 3000);
-            } else {
-                document.getElementById('loginError').style.display = 'block';
-            }
+      function verificarSiFueElegido() {
+        const vehiculoElegido = localStorage.getItem("vehiculoElegido");
+        if (vehiculoElegido && miVehiculo) {
+          const fueElegido = parseInt(vehiculoElegido) === miVehiculo.id;
+          if (miVehiculo.elegido !== fueElegido) {
+            miVehiculo.elegido = fueElegido;
+            renderMiVehiculo();
+          }
+        }
+      }
+
+      function iniciarViaje() {
+        const ahora = new Date().toISOString().slice(0, 19).replace("T", " ");
+        localStorage.setItem("hora_salida", ahora);
+        alert(
+          `✅ Viaje iniciado a las ${new Date(ahora).toLocaleTimeString()}`,
+        );
+        renderMiVehiculo();
+      }
+
+async function finalizarViaje() {
+    const ahora = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    localStorage.setItem('hora_fin', ahora);
+    
+    // Obtener datos del usuario desde localStorage
+    const usuarioNombre = localStorage.getItem('usuarioNombre') || 'Cliente';
+    const usuarioTelefono = localStorage.getItem('usuarioTelefono') || '-';
+    const origen = localStorage.getItem('origenActual') || '-';
+    const destino = localStorage.getItem('destinoActual') || '-';
+    const precio = miVehiculo.precio || 0;
+    
+    // Guardar en base de datos
+    try {
+        const response = await fetch('http://localhost:3000/api/conductor/finalizar-viaje', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                usuario_nombre: usuarioNombre,
+                usuario_telefono: usuarioTelefono,
+                origen: origen,
+                destino: destino,
+                conductor_nombre: miVehiculo.nombre,
+                patente: miVehiculo.patente,
+                precio: precio,
+                vehicle_id: miVehiculo.id
+            })
         });
         
-        // Logout
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            conductorActual = null;
-            miVehiculo = null;
-            lastSolicitudId = null;
-            localStorage.removeItem('conductorActual');
-            localStorage.removeItem('vehiculoActual');
-            document.getElementById('loginScreen').classList.remove('oculto');
-            document.getElementById('mainScreen').classList.add('oculto');
-            document.getElementById('codigoPatente').value = '';
-            document.getElementById('contrasena').value = '';
-            document.getElementById('loginError').style.display = 'none';
+        const data = await response.json();
+        if (data.success) {
+            alert(`✅ Viaje finalizado y guardado correctamente`);
+        } else {
+            alert(`⚠️ Viaje finalizado pero hubo error al guardar`);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert(`⚠️ Viaje finalizado pero hubo error de conexión`);
+    }
+    
+    renderMiVehiculo();
+}
+
+      window.cargarPrecio = () => {
+        const precioInput = document.getElementById("precioInput");
+        const precio = precioInput.value;
+        if (precio && miVehiculo) {
+          miVehiculo.precio = parseFloat(precio);
+          guardarPrecio();
+          renderMiVehiculo();
+          alert(`✅ Precio de $${precio} cargado correctamente`);
+        } else {
+          alert("Ingresá un precio válido");
+        }
+      };
+
+      function renderMiVehiculo() {
+        const container = document.getElementById("vehiculoContainer");
+        if (!miVehiculo) return;
+
+        let estadoClass = "";
+        let estadoTexto = "";
+
+        const vehiculoElegido = localStorage.getItem("vehiculoElegido");
+        const horaSalida = localStorage.getItem("hora_salida");
+        const horaFin = localStorage.getItem("hora_fin");
+
+        if (vehiculoElegido && parseInt(vehiculoElegido) === miVehiculo.id) {
+          estadoClass = "vehiculo-elegido";
+          estadoTexto =
+            '<div style="background: #28a745; color: white; padding: 10px; border-radius: 8px; margin-top: 10px; text-align: center;">✅ ¡VIAJE CONFIRMADO! El usuario te eligió.</div>';
+        } else if (
+          vehiculoElegido &&
+          parseInt(vehiculoElegido) !== miVehiculo.id
+        ) {
+          estadoClass = "vehiculo-rechazado";
+          estadoTexto =
+            '<div style="background: #dc3545; color: white; padding: 10px; border-radius: 8px; margin-top: 10px; text-align: center;">❌ El usuario eligió otro vehículo</div>';
+        }
+
+        let html = `<div class="vehiculo ${estadoClass}">`;
+        html += `<div class="vehiculo-nombre">👨‍✈️ ${miVehiculo.nombre}</div>`;
+        html += `<div class="vehiculo-detalle">🚗 ${miVehiculo.vehiculo} - ${miVehiculo.patente}</div>`;
+        html += `<div class="vehiculo-detalle">👥 ${miVehiculo.capacidad} asientos</div>`;
+        html += `<div class="vehiculo-detalle">📞 ${miVehiculo.telefono}</div>`;
+        // Mostrar origen y destino
+        const origen = localStorage.getItem('origenActual') || 'Pendiente';
+        const destino = localStorage.getItem('destinoActual') || 'Pendiente';
+        html += `<div class="vehiculo-detalle">📍 ${origen} → ${destino}</div>`;
+
+        // Precio
+        if (miVehiculo.precio) {
+          html += `<div class="vehiculo-precio">💰 Precio actual: $${miVehiculo.precio}</div>`;
+        }
+
+        // Botones de viaje
+        if (vehiculoElegido && parseInt(vehiculoElegido) === miVehiculo.id) {
+          if (!horaSalida)
+            html += `<button class="btn-iniciar" onclick="iniciarViaje()">🚗 Iniciar Viaje</button>`;
+          if (horaSalida && !horaFin)
+            html += `<button class="btn-finalizar" onclick="finalizarViaje()">🏁 Finalizar Viaje</button>`;
+        }
+
+        // Horarios
+        if (horaSalida)
+          html += `<div class="vehiculo-detalle" style="color: #17a2b8;">🕐 Salida: ${new Date(horaSalida).toLocaleString()}</div>`;
+        if (horaFin)
+          html += `<div class="vehiculo-detalle" style="color: #28a745;">🕐 Llegada: ${new Date(horaFin).toLocaleString()}</div>`;
+
+        // Input de precio (solo si no fue elegido aún)
+        if (
+          !vehiculoElegido ||
+          (vehiculoElegido && parseInt(vehiculoElegido) !== miVehiculo.id)
+        ) {
+          html += `<div class="vehiculo-precio">`;
+          html += `<input type="number" id="precioInput" class="precio-input" placeholder="Precio" value="${miVehiculo.precio || ""}">`;
+          html += `<button class="precio-btn" onclick="cargarPrecio()">Cargar Precio</button>`;
+          html += `</div>`;
+        }
+
+        html += estadoTexto;
+        html += `</div>`;
+        container.innerHTML = html;
+      }
+
+// Login
+document.getElementById("loginBtn").addEventListener("click", async () => {
+    let patente = document.getElementById("codigoPatente").value.toUpperCase().trim();
+    patente = patente.replace(/-/g, "");
+    const contrasena = document.getElementById("contrasena").value;
+
+    try {
+        const response = await fetch('http://localhost:3000/api/conductor/login-vehiculo', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ patente, contrasena })
         });
         
-        document.getElementById('codigoPatente').addEventListener('input', function() {
-            this.value = this.value.toUpperCase();
+        const data = await response.json();
+        
+        if (data.success) {
+            conductorActual = patente;
+            miVehiculo = {
+                id: data.vehiculo.id,
+                patente: data.vehiculo.patente,
+                nombre: data.vehiculo.nombre,
+                vehiculo: data.vehiculo.vehiculo,
+                capacidad: data.vehiculo.capacidad,
+                telefono: data.vehiculo.telefono
+            };
+
+            // Cargar precio guardado (si existe para ESTA solicitud)
+            cargarPrecioGuardado();
+
+            // Marcar el ID actual como "visto" para no resetear al entrar
+            lastSolicitudId = localStorage.getItem("idSolicitudActual");
+
+            localStorage.setItem("conductorActual", patente);
+            localStorage.setItem("vehiculoActual", JSON.stringify(miVehiculo));
+
+            document.getElementById("loginScreen").classList.add("oculto");
+            document.getElementById("mainScreen").classList.remove("oculto");
+            document.getElementById("bienvenida").innerHTML = `👨‍✈️ Bienvenido, ${miVehiculo.nombre}`;
+            document.getElementById("loginError").style.display = "none";
+
+            cargarOrigenDestino();
+            renderMiVehiculo();
+            escucharCambiosUsuario();
+            setInterval(verificarSiFueElegido, 3000);
+        } else {
+            document.getElementById("loginError").style.display = "block";
+        }
+    } catch (error) {
+        document.getElementById("loginError").style.display = "block";
+        console.error('Error:', error);
+    }
+});
+
+      // Logout
+      document.getElementById("logoutBtn").addEventListener("click", () => {
+        conductorActual = null;
+        miVehiculo = null;
+        lastSolicitudId = null;
+        localStorage.removeItem("conductorActual");
+        localStorage.removeItem("vehiculoActual");
+        document.getElementById("loginScreen").classList.remove("oculto");
+        document.getElementById("mainScreen").classList.add("oculto");
+        document.getElementById("codigoPatente").value = "";
+        document.getElementById("contrasena").value = "";
+        document.getElementById("loginError").style.display = "none";
+      });
+
+      document
+        .getElementById("codigoPatente")
+        .addEventListener("input", function () {
+          this.value = this.value.toUpperCase();
         });
     </script>
-</body>
+  </body>
 </html>

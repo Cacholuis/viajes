@@ -1,0 +1,127 @@
+PARA HACER COMMIT CON BASE DE DATOS INCLUIDA
+PRIMERO HAY QUE MOVERLA A UN respaldo
+
+mysqldump -u usuario -p nombre_base > backup.sql
+
+RECIEN LO QUE SIGUE
+
+$usuario = "root"
+$base = "nombre_base"
+$archivo = ".\db\backup.sql"
+
+mysqldump -u $usuario -p $base > $archivo
+git add $archivo
+git commit -m "Actualización de backup MySQL"
+git push origin main
+
+
+
+
+PARA CLONAR REPOSITORIO DESDE GITHUB
+git clone https://github.com/Cacholuis/Delivery.git
+
+PARA SUBIR REPOSITORIO A GITHUB
+1 - git status 			******* PARA VERIFICAR EL ESTADO DEL REPOSITORIO
+2 - git add nombre_del_archivo  ******PARA UN ARCHIVO ESPECIFICO
+3 - git add .   		******* PARA TODOS LOS ARCHIVOS MODIFICADOS
+4 - git commit -m "Descripción clara de los cambios"
+5 - git push origin main 	**********- Sustituye main por la rama en la que estés trabajando (puede ser master u otra).
+
+*************************************************************************************
+
+RECONSTRUIR LA IMAGEN EN LA NUBE CON GOOGLE CLOUD
+docker build -t gcr.io/delivery-7e615/delivery-backend:latest .
+SUBIR LA IMAGEN 
+docker push gcr.io/delivery-7e615/delivery-backend:latest
+DESPLEGAR EN CLOUD RUN
+gcloud run deploy delivery-backend --image gcr.io/delivery-7e615/delivery-backend:latest --platform managed --allow-unauthenticated --region us-central1
+
+
+ORDEN COMPLETO PARA ACTUALIZAR TODO
+1 - Si modificaste el backend (Node.js)
+docker build -t gcr.io/delivery-7e615/delivery-backend:latest .
+docker push gcr.io/delivery-7e615/delivery-backend:latest
+gcloud run deploy delivery-backend --image gcr.io/delivery-7e615/delivery-backend:latest --platform managed --allow-unauthenticated --region us-central1
+2 - Si modificaste el frontend (HTML, CSS, JS)
+firebase deploy --only hosting
+3-Si modificaste ambos
+# Backend
+docker build -t gcr.io/delivery-7e615/delivery-backend:latest .
+docker push gcr.io/delivery-7e615/delivery-backend:latest
+gcloud run deploy delivery-backend --image gcr.io/delivery-7e615/delivery-backend:latest --platform managed --allow-unauthenticated --region us-central1
+# Frontend
+firebase deploy --only hosting
+
+*************************************************************************************
+
+PASOS PARA ENTRAR AL SISTEMA DE SERVICIOS
+Login (panel de dueños)		https://delivery-7e615.web.app/login.html
+Admin (gestionar dueños)	https://delivery-7e615.web.app/login.html (usuario: admin)
+Pedidos (vista de dueño)	https://delivery-7e615.web.app/index.html (después de login)
+URLS PARA CLIENTES (TIENDAS)
+Negocio		URL
+Juan Pérez	https://delivery-7e615.web.app/clientes.html?negocio=juan
+María García	https://delivery-7e615.web.app/clientes.html?negocio=maria
+Cocina Pedro	https://delivery-7e615.web.app/clientes.html?negocio=cocina
+Lorena		https://delivery-7e615.web.app/clientes.html?negocio=lorena
+
+USUARIOS PARA PROBAR
+Usuario		Contraseña	Rol
+admin		admin123	Administrador (gestiona dueños)
+juan		123456		Dueño de "Juan Pérez"
+maria		123456		Dueña de "María García"
+cocina		123456		Dueño de "Cocina Pedro"
+lorena		123456		Dueña de "Lorena"
+
+RESUMEN RÁPIDO
+Entrás a login.html con cualquier usuario de la lista
+Si sos admin, ves el botón "Dueños" para gestionar otros negocios
+Si sos un dueño (ej: juan), ves tu panel con productos, pedidos, etc.
+Los clientes entran directamente a la
+
+PASOS PARA SISTEMA DE VIAJES
+Archivo		URL					Para quién
+encargado.html	/admin-panel/public/encargado.html	Encargado (registra vehículos+conductor)
+conductor.html	/admin-panel/public/conductor.html	Conductor (acepta/rechaza viajes)
+usuario.html	/admin-panel/public/usuario.html	Usuario (solicita viajes)
+
+Conductor	Patente
+Juan Perez	ABC123  contraseña: conductor123
+Carlos Lopez	DEF456
+Maria Gomez	GHI789
+
+**********************************************************************************
+
+PASOS PARA LLEVAR BASE DE DATOS A OTRA PC PARA TRABAJAR EN LA NUBE
+En la terminal de VS Code (ya fuera del prompt de MySQL), ejecuta:
+bash
+mysqldump -u root -p --default-character-set=utf8 viajes > E:\respaldoviajes.sql
+o este 
+mysqldump --default-character-set=utf8mb4 -u root -p viajes > E:\respaldoviajes.sql
+
+YA EN LA PC ¿
+Abre la terminal y crea la base de datos vacía:
+mysql -u tu_usuario -p -e "CREATE DATABASE nombre_base;"
+Restaura el respaldo:
+bash
+mysql -u tu_usuario -p nombre_base < respaldo.sql
+Verificar que se restauró bien
+Entra al prompt de MySQL:
+bash
+mysql -u tu_usuario -p
+Luego ejecuta:
+sql
+USE viajes;
+SHOW 
+
+
+***********************************************************************************
+DATOS DE TiDB PARA CONECTARSE A LA NUBE CADENA DE CONEXION 
+Dato	    	   Valor
+Host		    : gateway01.us-west-2.prod.aws.tidbcloud.com
+Puerto		    : 4000
+Usuario		    : 2aPpF4YMi6DctMR.root
+Contraseña	    : nXMVCPFKjpm6VLH9 
+Base de datos	: test
+
+

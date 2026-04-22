@@ -63,7 +63,91 @@ router.get('/vehiculos', auth, isEncargado, async (req, res) => {
     }
 });
 
-// GET - Movimientos del encargado
+// ========== NUEVAS RUTAS PARA MOVIMIENTOS Y REPORTES ==========
+
+// GET - Movimientos (viajes completados agrupados por día y vehículo)
+router.get('/movimientos/viajes', auth, isEncargado, async (req, res) => {
+    try {
+        const encargadoId = req.encargadoId;
+
+        const movimientos = await db.query(`
+            SELECT 
+                DATE(viajes.created_at) AS fecha,
+                v.id AS vehiculo_id,
+                v.plate AS patente,
+                v.conductor_nombre AS conductor,
+                COUNT(viajes.id) AS cantidad_viajes,
+                SUM(viajes.costo) AS total
+            FROM viajes
+            JOIN vehicles v ON viajes.vehicle_id = v.id
+            WHERE v.encargado_id = ? AND viajes.estado = 'completado'
+            GROUP BY DATE(viajes.created_at), v.id
+            ORDER BY fecha DESC, patente ASC
+        `, [encargadoId]);
+
+        res.json({ success: true, data: movimientos });
+    } catch (error) {
+        console.error('Error en movimientos/viajes:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// GET - Detalle de movimientos de un día específico (opcional)
+router.get('/movimientos/detalle', auth, isEncargado, async (req, res) => {
+    try {
+        const { fecha, vehiculo_id } = req.query;
+        const encargadoId = req.encargadoId;
+
+        const detalle = await db.query(`
+            SELECT 
+                viajes.id,
+                viajes.usuario_nombre,
+                viajes.origen_direccion,
+                viajes.destino_direccion,
+                viajes.costo,
+                viajes.created_at
+            FROM viajes
+            JOIN vehicles v ON viajes.vehicle_id = v.id
+            WHERE v.encargado_id = ? 
+              AND DATE(viajes.created_at) = ?
+              AND viajes.vehicle_id = ?
+              AND viajes.estado = 'completado'
+            ORDER BY viajes.created_at ASC
+        `, [encargadoId, fecha, vehiculo_id]);
+
+        res.json({ success: true, data: detalle });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// GET - Reportes (misma consulta que movimientos pero sin límite)
+router.get('/reportes', auth, isEncargado, async (req, res) => {
+    try {
+        const encargadoId = req.encargadoId;
+
+        const reporte = await db.query(`
+            SELECT 
+                DATE(viajes.created_at) AS fecha,
+                v.plate AS patente,
+                v.conductor_nombre AS conductor,
+                COUNT(viajes.id) AS viajes,
+                SUM(viajes.costo) AS total
+            FROM viajes
+            JOIN vehicles v ON viajes.vehicle_id = v.id
+            WHERE v.encargado_id = ? AND viajes.estado = 'completado'
+            GROUP BY DATE(viajes.created_at), v.id
+            ORDER BY fecha DESC, patente ASC
+        `, [encargadoId]);
+
+        res.json({ success: true, data: reporte });
+    } catch (error) {
+        console.error('Error en reportes:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// Mantenemos la ruta original /movimientos por si se usa para auditoría
 router.get('/movimientos', auth, isEncargado, async (req, res) => {
     try {
         const movimientos = await db.query(`
@@ -78,5 +162,33 @@ router.get('/movimientos', auth, isEncargado, async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 });
+// GET - Detalle de un día específico
+router.get('/movimientos/detalle', auth, isEncargado, async (req, res) => {
+    try {
+        const { fecha, vehiculo_id } = req.query;
+        const encargadoId = req.encargadoId;
 
+        const detalle = await db.query(`
+            SELECT 
+                viajes.id,
+                viajes.usuario_nombre,
+                viajes.origen_direccion,
+                viajes.destino_direccion,
+                viajes.costo,
+                viajes.created_at
+            FROM viajes
+            JOIN vehicles v ON viajes.vehicle_id = v.id
+            WHERE v.encargado_id = ? 
+              AND DATE(viajes.created_at) = ?
+              AND viajes.vehicle_id = ?
+              AND viajes.estado = 'completado'
+            ORDER BY viajes.created_at ASC
+        `, [encargadoId, fecha, vehiculo_id]);
+
+        res.json({ success: true, data: detalle });
+    } catch (error) {
+        console.error('Error en detalle:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
 module.exports = router;

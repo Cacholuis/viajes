@@ -108,30 +108,41 @@ app.post('/api/solicitar-viaje', async (req, res) => {
     }
 });
 
-// Login de conductor
-app.post('/api/conductor/login', async (req, res) => {
+// Login de conductor con patente y contraseña
+// Login de conductor con patente y contraseña
+app.post('/api/conductor/login-vehiculo', async (req, res) => {
     try {
-        const { email } = req.body;
+        const { patente, contrasena } = req.body;
         
-        const conductor = await db.query(`
-            SELECT v.id, v.conductor_nombre, v.conductor_telefono, v.conductor_email,
-                   v.plate, v.model
+        const vehiculo = await db.query(`
+            SELECT 
+                v.id,
+                v.plate,
+                v.model,
+                v.capacity,
+                v.conductor_nombre,
+                v.conductor_telefono
             FROM vehicles v
-            WHERE v.conductor_email = ? AND v.active = 1
-        `, [email]);
+            WHERE v.plate = ? AND v.contrasena = ? AND v.active = 1
+        `, [patente, contrasena]);
         
-        if (conductor.length === 0) {
-            return res.status(401).json({ success: false, message: 'Email no registrado como conductor' });
+        if (vehiculo.length === 0) {
+            return res.status(401).json({ success: false, message: 'Patente o contraseña incorrecta' });
         }
-        
-        const token = Buffer.from(email).toString('base64');
         
         res.json({ 
             success: true, 
-            token: token,
-            conductor: conductor[0]
+            vehiculo: {
+                id: vehiculo[0].id,
+                patente: vehiculo[0].plate,
+                nombre: vehiculo[0].conductor_nombre,
+                vehiculo: vehiculo[0].model,
+                capacidad: vehiculo[0].capacity,
+                telefono: vehiculo[0].conductor_telefono
+            }
         });
     } catch (error) {
+        console.error('Error en login conductor:', error);
         res.status(500).json({ success: false, message: error.message });
     }
 });
@@ -448,6 +459,42 @@ app.get('/api/encargado/reporte-conductores', async (req, res) => {
         res.json({ success: true, data: reporte });
     } catch (error) {
         console.error('Error:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// Guardar viaje completado
+app.post('/api/conductor/finalizar-viaje', async (req, res) => {
+    try {
+        const { 
+            usuario_nombre, 
+            usuario_telefono, 
+            origen, 
+            destino, 
+            conductor_nombre, 
+            patente, 
+            precio,
+            vehicle_id
+        } = req.body;
+        
+        const result = await db.query(`
+            INSERT INTO viajes (
+                usuario_nombre, 
+                usuario_telefono, 
+                origen_direccion, 
+                destino_direccion, 
+                conductor_nombre, 
+                patente, 
+                vehicle_id, 
+                costo, 
+                estado, 
+                created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'completado', NOW())
+        `, [usuario_nombre, usuario_telefono, origen, destino, conductor_nombre, patente, vehicle_id, precio]);
+        
+        res.json({ success: true, id: result.insertId });
+    } catch (error) {
+        console.error('Error guardando viaje:', error);
         res.status(500).json({ success: false, message: error.message });
     }
 });
